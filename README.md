@@ -5,10 +5,10 @@ Central Limit Theorem Calculator (Alex Mun, Steve Briceno)
 The Central Limit Theorem (CLT) is probabilistic law which states that the mean 
 of a sample population will be normally distributed (bell-shaped) given that 
 there are enough members in the sample. The CLT Calculator will take as inputs 
-1.) a set of sample data points and 2.) a confidence level, which determines the 
-tolerance to which the standard error of the sample distribution strays from the 
-mean. The CLT Calculator will then output the 1.) sample mean, 2.) sample 
-variance, and 3.) the confidence interval.
+1.) a set of sample data points, 2.) the standard deviation and, 3.) a confidence 
+level, which determines the tolerance to which the standard error of the sample 
+distribution strays from the mean. The CLT Calculator will then output the 
+1.) sample mean, 2.) sample variance, and 3.) the confidence interval.
 
 Elements of the Unix Philosophy incorporated into the CLT Calculator are 1.) 
 Rule of Clarity, 2.) Rule of Simplicity, and 3.) Rule of Parsimony. The Rule of 
