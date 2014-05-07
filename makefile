@@ -1,5 +1,3 @@
-all: clt
-
 clt: clt.o
 	g++ clt.o -o clt
 
