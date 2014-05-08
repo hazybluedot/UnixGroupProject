@@ -3,20 +3,20 @@
 // ECE 2524: Unix
 //
 // The Central Limit Theorem Calculator accepts as inputs:
-// 1.) The Sample Size
-// 2.) Entry Data for the Sample Population
+// 1.) Sample Size
+// 2.) Sample Data
 // 3.) Confidence Level
-// 4.) Standard Deviation (if applicable)
+// 4.) Standard Deviation
 //
 // The CLT Calculator will output:
-// 1.) The Sample Mean
-// 2.) The Sample Variance
-// 3.) Confidence Interval
+// 1.) Sample Mean
+// 2.) Sample Variance
+// 3.) Error Margin
+// 4.) Confidence Interval
 //
 // Assumptions made by the CLT Calculator:
 // 1.) It is up to the user to specify a sufficiently large sample size
-// 2.) Confidence levels will only be 90%, 95%, or 99%
-// 3.) The Standard Deviation is optional
+// 2.) Confidence levels will only be chosen among 90%, 95%, or 99%
 //
 /* 
 	TO DO:
@@ -73,7 +73,8 @@ void intervalGenerator(vector<double> sample, int size, int clvl, double sum, do
 
 	cout << "Sample Mean: " << mean << endl;
 	cout << "Sample Variance: " << var << endl;
-	cout << "Confidence Interval: (" << mean - errorMargin << ", " << mean + errorMargin << ")" << endl;
+	cout << "Error Margin: " << errorMargin << endl;
+	cout << "Confidence Interval [" << clvl << "%]: (" << mean - errorMargin << ", " << mean + errorMargin << ")" << endl;
 }
 
 
@@ -106,7 +107,7 @@ int main()
 	}
 	
 	// Prompts the user for standard deviation (if applicable)
-	cout << "Enter Standard Deviation (enter 0 if there is none): ";
+	cout << "Enter Standard Deviation: ";
 	cin >> stanDev;
 	cout << endl;
 
@@ -116,10 +117,11 @@ int main()
 		intervalGenerator(sampleVector, sampleSize, confidenceLevel, sampleSum, sampleMean, sampleVar, stanDev);
 
 		// Prompts the user for a new confidence level. Otherwise, prepare program for termination.
-		cout << "Select new confidence value for sample data?" << endl;
+		cout << "Select a new confidence level for sample data?" << endl;
 		cout << "Y/N: ";
-		cin.ignore();
+		cin.ignore();	// Prevents the program from continuing without user input
 		getline(cin, input);
+		cout << endl;
 		if(input=="Y"||input=="y")
 		{
 			newRun = true;
