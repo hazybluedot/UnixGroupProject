@@ -17,7 +17,3 @@ of the CLT Calculator by minimizing the amount of extraneous operations required
 execute the Central Limit Theorem, while maintaining a consistent style to aid
 the reader in traversing the code. The Rule of Modularity will be enforced through
 the usage of short, concise functions that all perform a single, clear task.
-
-Features to be added in a future commit:
-1.) Error Checking for Inputs
-2.) Additional Commenting for Functions and Main
