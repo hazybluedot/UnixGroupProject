@@ -1,5 +1,3 @@
-UnixGroupProject
-================
 ## Central Limit Theorem Calculator 
 by Alex Mun and Steve Briceno
 
