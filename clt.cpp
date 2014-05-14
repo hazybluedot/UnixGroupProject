@@ -28,6 +28,89 @@
 #include <cstdlib>
 using namespace std;
 
+// Advanced error checking for inputs that conform to a specific failure condition
+double inputIdentifier()
+{
+	bool error = false;		// False indicates there are no issues with input
+	double input = 0;
+	cin >> input;
+	if(input < 0)			// Inputs must not be negative values
+	{
+		cin.clear();
+		while(cin.get()!='\n');
+		error = true;
+	}
+	else if(cin.fail() || cin.get()!='\n')	// Inputs must be double values
+    {
+        cin.clear();
+        while(cin.get()!='\n');
+		error = true;
+    }
+	if(error == true)
+	{
+		return -1;			// Error condition
+	}
+	else
+	{
+		return input;
+	}
+}
+
+// Prompts the user for the sample size and performs error checking
+int sampleSizeGenerator()
+{
+	string input;
+	int tempInt = 0;
+	cout << "Enter Sample Size: ";
+	getline(cin, input);
+	tempInt = atoi(input.c_str());
+	while(tempInt <= 0)
+	{
+		cout << endl << "Invalid Input. Enter Sample Size: ";
+		cin.clear();
+		input = "";
+		getline(cin, input);
+		tempInt = atoi(input.c_str());
+	}
+	return atoi(input.c_str());
+}
+
+// Prompts the user for sample data entries and performs error checking
+void addSampleData(vector<double> &sample, int sampleSize)
+{
+	double input;
+	for(int n = 0; n < sampleSize; n++)
+	{
+		cout << "Enter Data for Sample " << n+1 << ": ";
+		input = inputIdentifier();
+		while(input == -1)
+		{
+			cout << endl << "Invalid Input. Enter Data for Sample " << n+1 << ": ";
+			input = inputIdentifier();
+		}
+		sample[n] = input;
+	}
+}
+
+// Prompts the user for the standard deviation and performs error checking
+int stanDevGenerator()
+{
+	string input;
+	int tempInt = 0;
+	cout << "Enter Standard Deviation: ";
+	getline(cin, input);
+	tempInt = atoi(input.c_str());
+	while(tempInt <= 0)
+	{
+		cout << endl << "Invalid Input. Enter Standard Deviation: ";
+		cin.clear();
+		input = "";
+		getline(cin, input);
+		tempInt = atoi(input.c_str());
+	}
+	return atoi(input.c_str());
+}
+
 // Error checking for malformed confidence level inputs
 int clvlErrorHandling()
 {
@@ -116,55 +199,21 @@ int main()
 	// Variable Declarations
 	vector<double> sampleVector;
 	int sampleSize		= 0;
+	int stanDev			= 0;
 	int confidenceLevel = 0;
 	double sampleSum 	= 0;
 	double sampleMean 	= 0;
 	double sampleVar  	= 0;
-	double stanDev	  	= 0;
 	double zScore 		= 0;
 	double stanError 	= 0;
 	double errorMargin	= 0;
 	bool newRun = true;
-	string input = "";
+	string input;
 	
-	// Prompts the user for the sample size
-	cout << "Enter Sample Size: ";
-	cin >> sampleSize;
-	while(!cin)			// Error handling for non-integer inputs
-	{
-		cout << endl << "Invalid Input." << endl << "Enter Sample Size (integer values only): ";
-		cin.clear();
-		cin.ignore();
-		cin >> sampleSize;
-	}
+	sampleSize = sampleSizeGenerator();
 	sampleVector.resize(sampleSize);
-
-	// Prompts the user for sample entries
-	for(int n = 0; n < sampleSize; n++)
-	{
-		cout << "Enter Data for Sample " << n+1 << ": ";
-		cin >> sampleVector[n];
-		while(!cin)		// Error handling for non-numeric inputs
-		{
-			cout << endl << "Invalid Input. Enter Data for Sample " << n+1 << ": ";
-			cin.clear();
-			cin.ignore();
-			cin >> sampleVector[n];
-		}
-	}
-	
-	// Prompts the user for standard deviation (if applicable)
-	cout << "Enter Standard Deviation: ";
-	cin >> stanDev;
-	while(!cin)		// Error handling for non-numeric inputs
-	{
-		cout << endl << "Invalid Input. Enter Standard Deviation: ";
-		cin.clear();
-		cin.ignore();
-		cin >> stanDev;
-	}
-	cout << endl;
-
+	addSampleData(sampleVector, sampleSize);
+	stanDev = stanDevGenerator();
 	while(newRun == true)
 	{
 		confidenceLevel = confidenceSelector();
