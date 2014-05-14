@@ -25,6 +25,7 @@
 #include <math.h>
 #include <cctype> 
 #include <string>
+#include <cstdlib>
 using namespace std;
 
 // Error checking for malformed confidence level inputs
@@ -199,7 +200,5 @@ int main()
 			break;
 		}
 	}
-	// Await user input before termination
-	system("PAUSE");
 	return EXIT_SUCCESS;
 }
