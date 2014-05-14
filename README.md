@@ -17,3 +17,17 @@ of the CLT Calculator by minimizing the amount of extraneous operations required
 execute the Central Limit Theorem, while maintaining a consistent style to aid
 the reader in traversing the code. The Rule of Modularity will be enforced through
 the usage of short, concise functions that all perform a single, clear task.
+
+Instructions
+
+1.) Download the zipfile or copy clt.cpp and the makefile to your working directory
+2.) Within a working directory with the source files, run "make" in the terminal
+
+NOTE - You might receive a warning message similar to the following:
+
+Warning: File `clt' has modification time X s in the future
+make: warning:  Clock skew detected.  Your build may be incomplete.
+
+This can be disregarded. The CVL server time may be slightly behind the modification time of the source code when it was updated.
+
+Once the source code has been compiled, you should now be able to run the program by typing "./clt"
