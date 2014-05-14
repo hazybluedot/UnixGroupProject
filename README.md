@@ -1,6 +1,7 @@
 UnixGroupProject
 ================
-## Central Limit Theorem Calculator (Alex Mun, Steve Briceno)
+## Central Limit Theorem Calculator 
+by Alex Mun and Steve Briceno
 
 The Central Limit Theorem (CLT) is a probabilistic law which states that the mean 
 of a sample population will be normally distributed (bell-shaped) provided that 
