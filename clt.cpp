@@ -19,235 +19,95 @@
 // 2.) Confidence levels will only be chosen among 90%, 95%, or 99%
 
 #include <iostream>
-#include <stdio.h>
 #include <vector>
 #include <numeric>
-#include <math.h>
+#include <cmath>
 #include <cctype> 
 #include <string>
 #include <cstdlib>
+#include <sysexits.h>
+#include <unistd.h>
+
+#include "parameters.h"
+#include "sample.hpp"
+
 using namespace std;
 
-// Advanced error checking for inputs that conform to a specific failure condition
-double inputIdentifier()
-{
-	bool error = false;		// False indicates there are no issues with input
-	double input = 0;
-	cin >> input;
-	if(input < 0)			// Inputs must not be negative values
-	{
-		cin.clear();
-		while(cin.get()!='\n');
-		error = true;
-	}
-	else if(cin.fail() || cin.get()!='\n')	// Inputs must be double values
-    {
-        cin.clear();
-        while(cin.get()!='\n');
-		error = true;
+void usage(ostream &os, int status) {
+    os << "Usage: clt [-m MU] [-s SIGMA]" << endl;
+    exit(status);
+}
+
+double require_strtod(const char* str) {
+    double val;
+    char *endptr;
+    
+    errno = 0;
+    val = strtod(str, &endptr);
+    if ((errno = ERANGE && ( val == HUGE_VAL || val == 0 )) 
+            || (errno != 0 && val == 0)) {
+        perror("strtod");
+        exit(EX_DATAERR);
     }
-	if(error == true)
-	{
-		return -1;			// Error condition
-	}
-	else
-	{
-		return input;
-	}
+    return val;
 }
 
-// Prompts the user for the sample size and performs error checking
-int sampleSizeGenerator()
-{
-	string input;
-	int tempInt = 0;
-	cout << "Enter Sample Size: ";
-	getline(cin, input);
-	tempInt = atoi(input.c_str());
-	while(tempInt <= 0)
-	{
-		cout << endl << "Invalid Input. Enter Sample Size: ";
-		cin.clear();
-		input = "";
-		getline(cin, input);
-		tempInt = atoi(input.c_str());
-	}
-	return atoi(input.c_str());
+Parameters parse_options(int argc, char *argv[]) {
+    int opt;
+    double mu, sigma;
+    
+    mu = 0;
+    sigma = 1;
+
+    while ((opt = getopt(argc, argv, "m:s:12")) != -1) {
+        switch(opt) {
+        case 'm': /* population mean */
+            mu = require_strtod(optarg);
+            break;
+        case 's': /* population variance */
+            sigma = require_strtod(optarg);
+            if (sigma <= 0) {
+                cerr << optarg << ": population standard deviation must be non-zero and positive" << endl;
+                usage(cerr, EX_USAGE);
+            }
+            break;
+        case '1': /* one tail */
+            break;
+        case '2': /* two tail */
+            break;
+        default:
+            usage(cerr, EX_USAGE);
+        }
+    }
+    if ( std::isnan(mu) || std::isnan(sigma) ) {
+        cerr << "current implementation requires known population parameters" << endl;
+        usage(cerr, EX_USAGE);
+    }
+
+    return Parameters(mu, sigma);
 }
 
-// Prompts the user for sample data entries and performs error checking
-void addSampleData(vector<double> &sample, int sampleSize)
-{
-	double input;
-	for(int n = 0; n < sampleSize; n++)
-	{
-		cout << "Enter Data for Sample " << n+1 << ": ";
-		input = inputIdentifier();
-		while(input == -1)
-		{
-			cout << endl << "Invalid Input. Enter Data for Sample " << n+1 << ": ";
-			input = inputIdentifier();
-		}
-		sample[n] = input;
-	}
-}
-
-// Prompts the user for the standard deviation and performs error checking
-int stanDevGenerator()
-{
-	string input;
-	int tempInt = 0;
-	cout << "Enter Standard Deviation: ";
-	getline(cin, input);
-	tempInt = atoi(input.c_str());
-	while(tempInt <= 0)
-	{
-		cout << endl << "Invalid Input. Enter Standard Deviation: ";
-		cin.clear();
-		input = "";
-		getline(cin, input);
-		tempInt = atoi(input.c_str());
-	}
-	return atoi(input.c_str());
-}
-
-// Error checking for malformed confidence level inputs
-int clvlErrorHandling()
-{
-	int confidenceLevel = 0;
-	cout << "Invalid Input. Select a Confidence Level" << endl;
-	cout << "90%" << endl;
-	cout << "95%" << endl;
-	cout << "99%" << endl;
-	cout << "Confidence Level (integer values only): ";
-	cin.clear();
-	cin.ignore();
-	cin >> confidenceLevel;
-	return confidenceLevel;
-}
-
-// Prompts the user for the confidence level and checks for non-integer inputs
-int confidenceSelector()
-{
-	int confidenceLevel = 0;
-	double zScore = 0;
-	cout << "Select a Confidence Level" << endl;
-	cout << "90%" << endl;
-	cout << "95%" << endl;
-	cout << "99%" << endl;
-	cout << "Confidence Level (integer values only): ";
-	cin >> confidenceLevel;
-	cout << endl;
-
-	// Error checking for non-integer values
-	while(!cin)
-	{
-		confidenceLevel = clvlErrorHandling();
-		cout << endl;
-	}
-	return confidenceLevel;
-}
-
-// Assigns the sample zScore depending on the chosen confidence level
-double zScoreGenerator(int confidenceLevel)
-{
-	double zScore = 0;
-	if(confidenceLevel == 90)
-	{
-		zScore = 1.645;
-	}
-	else if(confidenceLevel == 95)
-	{
-		zScore = 1.96;
-	}
-	else if(confidenceLevel == 99)
-	{
-		zScore = 2.58;
-	}
-	else
-	{
-		zScore = -1;	// Error condition for clvlErrorHandling()
-	}
-	return zScore;
-}
-
-// Calculates and outputs the sample mean, sample variance, error margin, and confidence interval.
-void calcResults(vector<double> sample, int size, int clvl, double sum, double mean, double var, double dev, double zS)
-{
-	double stanError = 0;
-	double errorMargin = 0;
-
-	// Determines the Sample Mean and the Sample Variance
-	sum = accumulate(sample.begin(), sample.end(), 0.0);
-	mean = sum/(double)size;
-	var  = (dev*dev)/(double)size;
-	
-	// Determines the Error Margin
-	stanError = dev/sqrt((double)size);
-	errorMargin = zS * stanError;
-
-	// Output results
-	cout << "Sample Mean: " << mean << endl;
-	cout << "Sample Variance: " << var << endl;
-	cout << "Error Margin: " << errorMargin << endl;
-	cout << "Confidence Interval [" << clvl << "%]: (" << mean - errorMargin << ", " << mean + errorMargin << ")" << endl;
-}
-
-
-int main()
+int main(int argc, char* argv[])
 {
 	// Variable Declarations
-	vector<double> sampleVector;
-	int sampleSize		= 0;
-	int stanDev			= 0;
-	int confidenceLevel = 0;
-	double sampleSum 	= 0;
-	double sampleMean 	= 0;
-	double sampleVar  	= 0;
-	double zScore 		= 0;
-	double stanError 	= 0;
-	double errorMargin	= 0;
-	bool newRun = true;
-	string input;
-	
-	sampleSize = sampleSizeGenerator();
-	sampleVector.resize(sampleSize);
-	addSampleData(sampleVector, sampleSize);
-	stanDev = stanDevGenerator();
-	while(newRun == true)
-	{
-		confidenceLevel = confidenceSelector();
-		zScore = zScoreGenerator(confidenceLevel);
-		while(zScore == -1)	// Error handling for invalid confidence levels
-		{
-			confidenceLevel = clvlErrorHandling();
-			zScore = zScoreGenerator(confidenceLevel);
-			cout << endl;
-		}
-		calcResults(sampleVector, sampleSize, confidenceLevel, sampleSum, sampleMean, sampleVar, stanDev, zScore);
+	vector<double> sample;
+        double stderr, z_score;
 
-		// Prompts the user for a new confidence level. Otherwise, prepare program for termination.
-		cout << endl;
-		cout << "Select a new confidence level for sample data?" << endl;
-		cout << "Y/N: ";
-		cin.ignore();	// Prevents the program from continuing without user input
-		getline(cin, input);
-		cout << endl;
-		if(input=="Y"||input=="y")
-		{
-			newRun = true;
-		}
-		else if(input=="N"||input=="n")
-		{
-			newRun = false;
-			break;
-		}
-		else
-		{
-			cout << "Invalid input: terminating program." << endl;
-			newRun = false;
-			break;
-		}
-	}
+        Parameters pop = parse_options(argc, argv);
+
+        sample = readSample(cin);
+
+        stderr = pop.std_dev() / sqrt(sample.size());
+        
+        z_score = ( stat::mean(sample.begin(), sample.end()) - pop.mean() ) / stderr;
+
+        cerr << "\u03BC: " << stat::mean(sample.begin(), sample.end()) << endl;
+        cerr << "z-score: " << z_score << endl;
+
+        if (z_score < 0)
+            cout << 0.5* (1 + erf(z_score * M_SQRT1_2))  << endl;
+        else
+            cout << 0.5* (erfc(z_score * M_SQRT1_2))  << endl;
+
 	return EXIT_SUCCESS;
 }
