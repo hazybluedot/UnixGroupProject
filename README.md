@@ -1,13 +1,12 @@
 ## Central Limit Theorem Calculator 
-by Alex Mun and Steve Briceno
 
-The Central Limit Theorem (CLT) is a probabilistic law which states that the mean 
-of a sample population will be normally distributed (bell-shaped) provided that 
-there are enough members in the sample. The CLT Calculator will accept as inputs: 
-1.) a set of sample data points, 2.) the standard deviation and, 3.) a confidence 
-level, which determines the margins of error in calculating the confidence interval. 
-The CLT Calculator will then output the 1.) sample mean, 2.) sample variance, 
-3.) error margin, and 4.) the confidence interval.
+The
+[Central Limit Theorem](http://stattrek.com/statistics/dictionary.aspx?definition=central_limit_theorem)
+(CLT) is a probabilistic law which states that the mean of a sample
+population will be normally distributed (bell-shaped) provided that
+there are enough members in the sample. This program will calculate
+[confidence intervals](http://stattrek.com/statistics/dictionary.aspx?definition=confidence_interval)
+for given sample data.
 
 Elements of the Unix Philosophy incorporated into the CLT Calculator are: 1.) 
 Rule of Clarity, 2.) Rule of Simplicity, and 3.) Rule of Modularity. The Rule of 
@@ -19,17 +18,25 @@ the usage of short, concise functions that all perform a single, clear task.
 
 ## Instructions
 
-1.) Download the zipfile or copy clt.cpp and the makefile to your working directory
+~~~~
+$ make
+~~~~
 
-2.) Within a working directory with the source files, run "make" in the terminal
+This will compile three programs:
 
-NOTE - You might receive a warning message similar to the following:
+stats
+: calcualate mean and standard deviation of sample data
 
-```
-Warning: File `clt' has modification time X s in the future
-make: warning:  Clock skew detected.  Your build may be incomplete.
-```
+cint
+: calculate confidence interval of sample data
 
-This can be disregarded. The CVL server time may be slightly behind the modification time of the source code when it was updated.
+## Test data
 
-Once the source code has been compiled, you should now be able to run the program by typing "./clt"
+Test data is available in the `test` directory
+
+~~~~
+$ ./stats < test/weight_data
+180, 29.2793
+$ ./cint -c 95% < test/weight_data
+180     1.81475 178.185 181.815
+~~~~
